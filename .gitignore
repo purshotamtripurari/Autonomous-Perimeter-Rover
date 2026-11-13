@@ -1,0 +1,41 @@
+# ==============================================================================
+# Autonomous Perimeter Rover - Git Ignore
+# ==============================================================================
+
+# Python Virtual Environment
+.venv/
+venv/
+env/
+ENV/
+*.py[cod]
+*$py.class
+__pycache__/
+*.egg-info/
+dist/
+eggs/
+.eggs/
+
+# ROS 2 & Colcon Build Artifacts
+build/
+build_merged/
+build_report/
+install/
+install_merged/
+log/
+colcon.meta
+
+# IDE & Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Large YOLO Run Dumps & Temp Outputs
+runs/
+*.mp4
+*.avi
+
+# Keep perimeter detections JSON and main audit logs, but ignore temp caches
+*.tmp

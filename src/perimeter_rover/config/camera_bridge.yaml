@@ -1,0 +1,14 @@
+# Camera sensor bridge configuration for TurtleBot3 Waffle in Gazebo Harmonic
+# Bridges Gazebo Sim camera/depth sensor topics to ROS 2 standard /camera/image_raw
+
+- ros_topic_name: "/camera/image_raw"
+  gz_topic_name: "/camera/image_raw"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/camera/depth/image_raw"
+  gz_topic_name: "/world/default/model/turtlebot3_waffle/link/camera_link/sensor/intel_realsense_r200_depth/depth_image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS

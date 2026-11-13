@@ -1,0 +1,276 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+  <world name="default">
+    <physics name="3ms" type="ode">
+      <max_step_size>0.003</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <!-- Core Gazebo Harmonic Plugins -->
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
+
+    <!-- Sunlight -->
+    <light name="sun" type="directional">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 20 0 0 0</pose>
+      <diffuse>0.9 0.9 0.85 1</diffuse>
+      <specular>0.3 0.3 0.3 1</specular>
+      <direction>-0.4 0.2 -0.9</direction>
+    </light>
+
+    <!-- Security Yard Floodlight -->
+    <light name="yard_floodlight" type="point">
+      <pose>0 0 8 0 0 0</pose>
+      <diffuse>0.8 0.8 0.9 1</diffuse>
+      <specular>0.5 0.5 0.5 1</specular>
+      <attenuation>
+        <range>30</range>
+        <constant>0.5</constant>
+        <linear>0.05</linear>
+        <quadratic>0.01</quadratic>
+      </attenuation>
+    </light>
+
+    <!-- Outdoor Ground Plane (Asphalt Yard) -->
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>50 50</size>
+            </plane>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>50 50</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.25 0.25 0.25 1</ambient>
+            <diffuse>0.30 0.30 0.30 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ==================== PERIMETER SECURITY WALLS (12m x 12m) ==================== -->
+
+    <!-- North Wall -->
+    <model name="perimeter_wall_north">
+      <static>true</static>
+      <pose>0 6.0 1.1 0 0 0</pose>
+      <link name="link">
+        <collision name="col">
+          <geometry><box><size>12.2 0.25 2.2</size></box></geometry>
+        </collision>
+        <visual name="vis">
+          <geometry><box><size>12.2 0.25 2.2</size></box></geometry>
+          <material>
+            <ambient>0.4 0.42 0.45 1</ambient>
+            <diffuse>0.5 0.52 0.55 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- East Wall -->
+    <model name="perimeter_wall_east">
+      <static>true</static>
+      <pose>6.0 0 1.1 0 0 0</pose>
+      <link name="link">
+        <collision name="col">
+          <geometry><box><size>0.25 12.0 2.2</size></box></geometry>
+        </collision>
+        <visual name="vis">
+          <geometry><box><size>0.25 12.0 2.2</size></box></geometry>
+          <material>
+            <ambient>0.4 0.42 0.45 1</ambient>
+            <diffuse>0.5 0.52 0.55 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- West Wall -->
+    <model name="perimeter_wall_west">
+      <static>true</static>
+      <pose>-6.0 0 1.1 0 0 0</pose>
+      <link name="link">
+        <collision name="col">
+          <geometry><box><size>0.25 12.0 2.2</size></box></geometry>
+        </collision>
+        <visual name="vis">
+          <geometry><box><size>0.25 12.0 2.2</size></box></geometry>
+          <material>
+            <ambient>0.4 0.42 0.45 1</ambient>
+            <diffuse>0.5 0.52 0.55 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- South Wall Left Section -->
+    <model name="perimeter_wall_south_left">
+      <static>true</static>
+      <pose>-3.5 -6.0 1.1 0 0 0</pose>
+      <link name="link">
+        <collision name="col">
+          <geometry><box><size>5.0 0.25 2.2</size></box></geometry>
+        </collision>
+        <visual name="vis">
+          <geometry><box><size>5.0 0.25 2.2</size></box></geometry>
+          <material>
+            <ambient>0.4 0.42 0.45 1</ambient>
+            <diffuse>0.5 0.52 0.55 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- South Wall Right Section (Leaves 2m Gate Opening at Center) -->
+    <model name="perimeter_wall_south_right">
+      <static>true</static>
+      <pose>3.5 -6.0 1.1 0 0 0</pose>
+      <link name="link">
+        <collision name="col">
+          <geometry><box><size>5.0 0.25 2.2</size></box></geometry>
+        </collision>
+        <visual name="vis">
+          <geometry><box><size>5.0 0.25 2.2</size></box></geometry>
+          <material>
+            <ambient>0.4 0.42 0.45 1</ambient>
+            <diffuse>0.5 0.52 0.55 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ==================== SECURITY GUARD CHECKPOINT BOOTH ==================== -->
+    <model name="guard_booth">
+      <static>true</static>
+      <pose>-4.4 -4.4 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col">
+          <geometry><box><size>1.6 1.6 2.5</size></box></geometry>
+        </collision>
+        <visual name="body">
+          <geometry><box><size>1.6 1.6 2.5</size></box></geometry>
+          <material>
+            <ambient>0.2 0.3 0.35 1</ambient>
+            <diffuse>0.25 0.35 0.45 1</diffuse>
+          </material>
+        </visual>
+        <!-- Windows Visual -->
+        <visual name="window">
+          <pose>0 0.81 0.3 0 0 0</pose>
+          <geometry><box><size>1.2 0.05 0.8</size></box></geometry>
+          <material>
+            <ambient>0.6 0.8 0.9 0.8</ambient>
+            <diffuse>0.7 0.9 1.0 0.8</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ==================== INDUSTRIAL SHIPPING CONTAINERS ==================== -->
+
+    <!-- Shipping Container Alpha (Industrial Blue) -->
+    <model name="shipping_container_alpha">
+      <static>true</static>
+      <pose>1.0 1.2 1.3 0 0 0</pose>
+      <link name="link">
+        <collision name="col">
+          <geometry><box><size>1.8 4.0 2.6</size></box></geometry>
+        </collision>
+        <visual name="vis">
+          <geometry><box><size>1.8 4.0 2.6</size></box></geometry>
+          <material>
+            <ambient>0.08 0.22 0.45 1</ambient>
+            <diffuse>0.12 0.30 0.65 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Shipping Container Beta (Industrial Rust Red) -->
+    <model name="shipping_container_beta">
+      <static>true</static>
+      <pose>-1.0 1.2 1.3 0 0 0</pose>
+      <link name="link">
+        <collision name="col">
+          <geometry><box><size>1.8 4.0 2.6</size></box></geometry>
+        </collision>
+        <visual name="vis">
+          <geometry><box><size>1.8 4.0 2.6</size></box></geometry>
+          <material>
+            <ambient>0.45 0.15 0.1 1</ambient>
+            <diffuse>0.65 0.22 0.15 1</diffuse>
+            <specular>0.2 0.2 0.2 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Cargo Pallet / Crate Stack -->
+    <model name="cargo_crates">
+      <static>true</static>
+      <pose>0.0 -2.0 0.6 0 0 0</pose>
+      <link name="link">
+        <collision name="col">
+          <geometry><box><size>1.4 1.4 1.2</size></box></geometry>
+        </collision>
+        <visual name="vis">
+          <geometry><box><size>1.4 1.4 1.2</size></box></geometry>
+          <material>
+            <ambient>0.5 0.35 0.2 1</ambient>
+            <diffuse>0.65 0.45 0.25 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ==================== 3D REALISTIC TEXTURED STANDING PERSON ==================== -->
+    <model name="human_intruder">
+      <static>true</static>
+      <pose>3.8 0.5 0.0 0 0 -1.5708</pose>
+      <link name="link">
+        <collision name="bottom">
+          <pose>0 -0.1 0.01 0 0 0</pose>
+          <geometry>
+            <box><size>0.5 0.35 0.02</size></box>
+          </geometry>
+        </collision>
+        <collision name="person">
+          <pose>0 0 0.02 0.04 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>model://standing_person/meshes/standing.dae</uri>
+            </mesh>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <pose>0 0 0.02 0.04 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>model://standing_person/meshes/standing.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+
+  </world>
+</sdf>

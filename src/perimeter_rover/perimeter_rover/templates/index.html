@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autonomous Perimeter Rover - Mission Control</title>
+  <style>
+    :root {
+      --bg-dark: #0a0e14;
+      --card-bg: #121822;
+      --card-border: #1e293b;
+      --card-hover: #172230;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent-cyan: #00f0ff;
+      --accent-green: #00ff88;
+      --accent-yellow: #ffb700;
+      --accent-red: #ff3366;
+      --accent-blue: #38bdf8;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* TOP HEADER */
+    header {
+      background: linear-gradient(180deg, #161f2e 0%, #0f1520 100%);
+      border-bottom: 1px solid var(--card-border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: radial-gradient(circle, var(--accent-cyan) 0%, rgba(0, 240, 255, 0.2) 70%);
+      border: 2px solid var(--accent-cyan);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+    }
+
+    .brand-title h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-title p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+    }
+
+    /* MODE TOGGLE SWITCH PILL */
+    .mode-switch-container {
+      display: flex;
+      align-items: center;
+      background: #090d14;
+      border: 1px solid var(--card-border);
+      border-radius: 30px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .mode-btn {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 24px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      color: var(--text-muted);
+      background: transparent;
+    }
+
+    .mode-btn.active-auto {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: #fff;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
+    }
+
+    .mode-btn.active-manual {
+      background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+      color: #fff;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.4);
+    }
+
+    /* EMERGENCY STOP BUTTON */
+    .estop-btn {
+      background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+      color: #fff;
+      border: 2px solid #b91c1c;
+      border-radius: 8px;
+      padding: 9px 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.5);
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+    }
+
+    .estop-btn:hover {
+      background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+      transform: scale(1.02);
+      box-shadow: 0 0 22px rgba(239, 68, 68, 0.8);
+    }
+
+    .estop-btn.active-stopped {
+      background: #7f1d1d;
+      border-color: #ef4444;
+      animation: estop-pulse 1s infinite alternate;
+    }
+
+    @keyframes estop-pulse {
+      from { box-shadow: 0 0 12px rgba(239, 68, 68, 0.4); }
+      to { box-shadow: 0 0 28px rgba(239, 68, 68, 1); }
+    }
+
+    /* SYSTEM STATUS PILLS */
+    .sys-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--accent-green);
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: currentColor;
+      box-shadow: 0 0 6px currentColor;
+      animation: dot-pulse 1.5s infinite;
+    }
+
+    @keyframes dot-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* MAIN CONTAINER */
+    main {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex: 1;
+      max-width: 1600px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* TOP DECK GRID */
+    .top-deck-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1.6fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 1200px) {
+      .top-deck-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 768px) {
+      .top-deck-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-badge {
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+    }
+
+    /* LIVE CAMERA FEED */
+    .video-container {
+      position: relative;
+      width: 100%;
+      height: 280px;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--card-border);
+    }
+
+    .video-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .video-overlay-hud {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .hud-chip {
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 0.68rem;
+      font-family: var(--font-mono);
+      color: #fff;
+    }
+
+    /* TELEMETRY GAUGES */
+    .telemetry-deck {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .telemetry-card {
+      background: #0c121c;
+      border: 1px solid #1a2536;
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .telemetry-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .telemetry-value-box {
+      margin: 8px 0;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .telemetry-num {
+      font-size: 1.85rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+
+    .telemetry-unit {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .telemetry-bar-wrap {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .telemetry-bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 3px;
+      transition: width 0.2s ease;
+    }
+
+    .bar-cyan { background: var(--accent-cyan); }
+    .bar-green { background: var(--accent-green); }
+    .bar-yellow { background: var(--accent-yellow); }
+    .bar-blue { background: var(--accent-blue); }
+
+    .telemetry-subtext {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-top: 6px;
+    }
+
+    /* WAYPOINT CHECKPOINT STATUS */
+    .checkpoint-tracker {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .wp-pill {
+      flex: 1;
+      text-align: center;
+      padding: 6px 2px;
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      border-radius: 6px;
+      background: #090e16;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+
+    .wp-pill.active {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+    }
+
+    /* JOYSTICK PANEL */
+    .joystick-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      position: relative;
+    }
+
+    .joystick-wrapper {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    #joystickCanvas {
+      width: 200px;
+      height: 200px;
+      display: block;
+    }
+
+    .joystick-readout {
+      margin-top: 10px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent-yellow);
+      display: flex;
+      gap: 12px;
+      background: #090e16;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+    }
+
+    .joystick-overlay-lock {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(18, 24, 34, 0.88);
+      backdrop-filter: blur(2px);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px;
+      text-align: center;
+      z-index: 10;
+      transition: opacity 0.3s ease;
+    }
+
+    .joystick-overlay-lock.hidden {
+      display: none;
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .btn-action {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+      background: #16202e;
+      color: #e2e8f0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-action:hover {
+      background: #1e2c3f;
+      border-color: #38bdf8;
+      color: #fff;
+    }
+
+    .btn-resume {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: var(--accent-green);
+    }
+    .btn-resume:hover {
+      background: rgba(16, 185, 129, 0.35);
+      border-color: var(--accent-green);
+    }
+
+    /* DETECTION TABLE CARD */
+    .table-card {
+      flex: 1;
+    }
+
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 5px 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+      background: #090e16;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .filter-btn.active {
+      background: #1e293b;
+      color: #fff;
+      border-color: var(--accent-cyan);
+    }
+
+    .search-input {
+      padding: 6px 12px;
+      background: #090e16;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      color: #fff;
+      font-size: 0.78rem;
+      font-family: inherit;
+      outline: none;
+      width: 220px;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .table-container {
+      overflow-x: auto;
+      max-height: 380px;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      text-align: left;
+    }
+
+    thead {
+      position: sticky;
+      top: 0;
+      background: #0f1622;
+      z-index: 10;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    th {
+      padding: 10px 14px;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      letter-spacing: 0.6px;
+      border-bottom: 1px solid var(--card-border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: #cbd5e1;
+      white-space: nowrap;
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .dist-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .dist-crit {
+      background: rgba(239, 68, 68, 0.18);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+
+    .dist-warn {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .dist-safe {
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .tag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 600;
+    }
+
+    .action-badge {
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+    }
+
+    .action-halt {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .action-avoid {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .action-pass {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--card-border);
+      padding: 10px 24px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      background: #090e16;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HEADER BAR -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🛡️</div>
+      <div class="brand-title">
+        <h1>AUTONOMOUS PERIMETER ROVER</h1>
+        <p>Mission Command & Security Teleoperation Console</p>
+      </div>
+    </div>
+
+    <!-- ACTIVE MODE TOGGLE -->
+    <div class="mode-switch-container">
+      <button id="btnAutoMode" class="mode-btn active-auto" onclick="setControlMode('autonomous')">
+        <span>🤖</span>
+        <span>AUTONOMOUS PATROL</span>
+      </button>
+      <button id="btnManualMode" class="mode-btn" onclick="setControlMode('manual')">
+        <span>🕹️</span>
+        <span>MANUAL JOYSTICK</span>
+      </button>
+    </div>
+
+    <!-- EMERGENCY STOP BUTTON -->
+    <button id="btnEStop" class="estop-btn" onclick="toggleEmergencyStop()">
+      <span>🛑</span>
+      <span id="estopBtnText">EMERGENCY STOP</span>
+    </button>
+
+    <!-- LIVE CLOCK & STATUS -->
+    <div class="sys-status">
+      <div class="status-pill">
+        <span class="pulse-dot"></span>
+        <span id="sysStatusText">ROS 2 JAZZY ONLINE</span>
+      </div>
+      <span id="liveClock">--:--:--</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- TOP DECK: CAMERA FEED + TELEMETRY GAUGES + JOYSTICK -->
+    <div class="top-deck-grid">
+      
+      <!-- 1. LIVE SURVEILLANCE FEED -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>📹</span>
+            <span>Live Surveillance Stream</span>
+          </div>
+          <span class="card-badge" id="cameraFpsBadge">30 FPS | MJPEG</span>
+        </div>
+        <div class="video-container">
+          <img id="videoStream" src="/video_feed" alt="Rover Camera Feed" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'640\' height=\'480\'><rect width=\'640\' height=\'480\' fill=\'%230a0e14\'/><text x=\'50%25\' y=\'50%25\' font-size=\'16\' fill=\'%2394a3b8\' text-anchor=\'middle\' font-family=\'monospace\'>Awaiting Rover Video Stream...</text></svg>'">
+          <div class="video-overlay-hud">
+            <span class="hud-chip">🔴 LIVE</span>
+            <span class="hud-chip" id="hudModeChip">AUTO</span>
+            <span class="hud-chip" id="hudPoseChip">X: 0.0 Y: 0.0</span>
+          </div>
+        </div>
+        <div class="checkpoint-tracker">
+          <div class="wp-pill active" id="pillWP1">WP1</div>
+          <div class="wp-pill" id="pillWP2">WP2</div>
+          <div class="wp-pill" id="pillWP3">WP3</div>
+          <div class="wp-pill" id="pillWP4">WP4</div>
+          <div class="wp-pill" id="pillWP5">WP5</div>
+          <div class="wp-pill" id="pillWP6">WP6</div>
+        </div>
+      </div>
+
+      <!-- 2. REAL-TIME VELOCITY & TELEMETRY DASHBOARD -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>⚡</span>
+            <span>Rover Kinematics & Velocity Telemetry</span>
+          </div>
+          <span class="card-badge" id="telemetryRateBadge">4 Hz Telemetry</span>
+        </div>
+
+        <div class="telemetry-deck">
+          <!-- Primary Rover Linear Velocity -->
+          <div class="telemetry-card">
+            <div class="telemetry-label">
+              <span>Primary Rover Linear Speed</span>
+              <span>v</span>
+            </div>
+            <div class="telemetry-value-box">
+              <span class="telemetry-num" id="valPrimarySpeed">0.00</span>
+              <span class="telemetry-unit">m/s</span>
+            </div>
+            <div class="telemetry-bar-wrap">
+              <div class="telemetry-bar-fill bar-cyan" id="barPrimarySpeed"></div>
+            </div>
+            <div class="telemetry-subtext" id="subPrimarySpeed">Forward Velocity (Max 0.26 m/s)</div>
+          </div>
+
+          <!-- Primary Rover Angular Velocity -->
+          <div class="telemetry-card">
+            <div class="telemetry-label">
+              <span>Primary Angular Velocity</span>
+              <span>&omega;</span>
+            </div>
+            <div class="telemetry-value-box">
+              <span class="telemetry-num" id="valPrimaryAng">0.00</span>
+              <span class="telemetry-unit">rad/s</span>
+            </div>
+            <div class="telemetry-bar-wrap">
+              <div class="telemetry-bar-fill bar-green" id="barPrimaryAng"></div>
+            </div>
+            <div class="telemetry-subtext" id="subPrimaryAng">Rotation Rate (0.0 &deg;/s)</div>
+          </div>
+
+          <!-- Secondary Rover Velocity -->
+          <div class="telemetry-card">
+            <div class="telemetry-label">
+              <span>Secondary Rover Speed</span>
+              <span>v<sub>2</sub></span>
+            </div>
+            <div class="telemetry-value-box">
+              <span class="telemetry-num" id="valSecondarySpeed">0.25</span>
+              <span class="telemetry-unit">m/s</span>
+            </div>
+            <div class="telemetry-bar-wrap">
+              <div class="telemetry-bar-fill bar-yellow" id="barSecondarySpeed" style="width: 50%;"></div>
+            </div>
+            <div class="telemetry-subtext" id="subSecondaryDist">Distance to Rover: 3.20m</div>
+          </div>
+
+          <!-- Position & Compass Heading -->
+          <div class="telemetry-card">
+            <div class="telemetry-label">
+              <span>Perimeter Heading & Pose</span>
+              <span>&theta;</span>
+            </div>
+            <div class="telemetry-value-box">
+              <span class="telemetry-num" id="valHeadingDeg">90&deg;</span>
+              <span class="telemetry-unit" id="valCardinal">[N]</span>
+            </div>
+            <div class="telemetry-bar-wrap">
+              <div class="telemetry-bar-fill bar-blue" id="barHeading" style="width: 50%;"></div>
+            </div>
+            <div class="telemetry-subtext" id="subPose">Pose: (x=0.00, y=-4.50)</div>
+          </div>
+        </div>
+
+        <div class="quick-actions">
+          <button class="btn-action btn-origin" style="background: rgba(0, 240, 255, 0.18); border-color: var(--accent-cyan); color: #00f0ff; font-weight: 700;" onclick="triggerResetToOrigin()">
+            <span>🏠</span>
+            <span>Reset to Origin & Patrol</span>
+          </button>
+          <button class="btn-action btn-resume" onclick="triggerResumePatrol()">
+            <span>🔓</span>
+            <span>Resume Patrol ('R')</span>
+          </button>
+          <button class="btn-action" onclick="triggerClearCostmaps()">
+            <span>🧹</span>
+            <span>Clear Costmaps</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. MANUAL JOYSTICK CONTROL DECK -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🕹️</span>
+            <span>Manual Joystick Teleop</span>
+          </div>
+          <span class="card-badge" id="joystickStatusBadge">Disabled (Auto)</span>
+        </div>
+
+        <div class="joystick-panel">
+          <!-- Overlay lock when in Autonomous Mode -->
+          <div id="joystickLock" class="joystick-overlay-lock">
+            <span style="font-size: 2rem;">🔒</span>
+            <p style="font-size: 0.82rem; font-weight: 600; color: #cbd5e1;">Autonomous Patrol Active</p>
+            <p style="font-size: 0.72rem; color: var(--text-muted);">Switch mode above to enable manual joystick teleoperation.</p>
+            <button class="btn-action" style="background: var(--accent-yellow); color: #000; font-weight: 700;" onclick="setControlMode('manual')">
+              Enable Manual Mode
+            </button>
+          </div>
+
+          <!-- Interactive Analog Joystick Canvas -->
+          <div class="joystick-wrapper" id="joystickWrapper">
+            <canvas id="joystickCanvas" width="200" height="200"></canvas>
+          </div>
+
+          <div class="joystick-readout">
+            <span id="joyReadoutLin">LIN: +0.00 m/s</span>
+            <span id="joyReadoutAng">ANG: +0.00 rad/s</span>
+          </div>
+          <div style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 6px;">
+            Touch/Drag Joystick or press [W] [A] [S] [D]
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM PANEL: REAL-TIME DETECTION EVENT LOG TABLE -->
+    <div class="card table-card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>🚨</span>
+          <span>Perimeter Detection & Intruder Log</span>
+          <span class="status-pill" style="font-size: 0.68rem; padding: 2px 7px;">
+            <span class="pulse-dot"></span>
+            <span id="detectionLiveTag">Active 1 Hz Stream</span>
+          </span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-action" style="padding: 4px 10px; font-size: 0.72rem;" onclick="exportTableToCSV()">
+            <span>📥</span>
+            <span>Export CSV</span>
+          </button>
+          <span class="card-badge" id="totalEventsBadge">0 Events Logged</span>
+        </div>
+      </div>
+
+      <div class="table-toolbar">
+        <div class="filter-pills">
+          <button class="filter-btn active" onclick="setTableFilter('ALL')">All Targets</button>
+          <button class="filter-btn" onclick="setTableFilter('Human')">🚨 Human Intruders</button>
+          <button class="filter-btn" onclick="setTableFilter('Rover')">🚗 Secondary Rovers</button>
+          <button class="filter-btn" onclick="setTableFilter('Obstacle')">📦 Static Shapes</button>
+        </div>
+        <input type="text" id="tableSearch" class="search-input" placeholder="Search date, time, target..." oninput="handleTableSearch()">
+      </div>
+
+      <div class="table-container">
+        <table id="detectionsTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Target Spotted</th>
+              <th>Distance to Rover</th>
+              <th>Target Location (X, Y)</th>
+              <th>Rover Position</th>
+              <th>Confidence</th>
+              <th>Protocol Action</th>
+            </tr>
+          </thead>
+          <tbody id="detectionsTbody">
+            <tr>
+              <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                Connecting to event database and waiting for perimeter breaches...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <span>AUTONOMOUS PERIMETER ROVER &bull; GEOFENCE SENTINEL SYSTEM</span>
+    <span id="footerConnectionInfo">Connected: localhost:5000 &bull; ROS 2 Jazzy &bull; Nav2 MPPI</span>
+  </footer>
+
+  <script>
+    // --- GLOBAL STATE ---
+    let currentMode = "autonomous";
+    let isEmergencyStop = false;
+    let activeFilter = "ALL";
+    let searchQuery = "";
+    let detectionEvents = [];
+    let lastRenderedCount = 0;
+
+    // Joystick Math & Teleop State
+    let isDragging = false;
+    let joyX = 0, joyY = 0;
+    const JOY_RADIUS = 75;
+    const KNOB_RADIUS = 28;
+    const MAX_LINEAR_SPEED = 0.25;   // m/s
+    const MAX_ANGULAR_SPEED = 1.0;   // rad/s
+    let teleopTimer = null;
+
+    // --- DOM REFERENCES ---
+    const btnAuto = document.getElementById("btnAutoMode");
+    const btnManual = document.getElementById("btnManualMode");
+    const btnEStop = document.getElementById("btnEStop");
+    const estopBtnText = document.getElementById("estopBtnText");
+    const joystickLock = document.getElementById("joystickLock");
+    const joystickStatusBadge = document.getElementById("joystickStatusBadge");
+    const joyCanvas = document.getElementById("joystickCanvas");
+    const joyCtx = joyCanvas.getContext("2d");
+    const joyReadoutLin = document.getElementById("joyReadoutLin");
+    const joyReadoutAng = document.getElementById("joyReadoutAng");
+
+    // Telemetry DOM
+    const valPrimarySpeed = document.getElementById("valPrimarySpeed");
+    const barPrimarySpeed = document.getElementById("barPrimarySpeed");
+    const valPrimaryAng = document.getElementById("valPrimaryAng");
+    const barPrimaryAng = document.getElementById("barPrimaryAng");
+    const subPrimaryAng = document.getElementById("subPrimaryAng");
+    const valSecondarySpeed = document.getElementById("valSecondarySpeed");
+    const barSecondarySpeed = document.getElementById("barSecondarySpeed");
+    const subSecondaryDist = document.getElementById("subSecondaryDist");
+    const valHeadingDeg = document.getElementById("valHeadingDeg");
+    const valCardinal = document.getElementById("valCardinal");
+    const subPose = document.getElementById("subPose");
+    const hudModeChip = document.getElementById("hudModeChip");
+    const hudPoseChip = document.getElementById("hudPoseChip");
+    const totalEventsBadge = document.getElementById("totalEventsBadge");
+    const detectionsTbody = document.getElementById("detectionsTbody");
+
+    // --- CLOCK UPDATE ---
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById("liveClock").innerText = now.toTimeString().split(" ")[0];
+    }, 1000);
+
+    // --- TOAST HUD NOTIFICATION HELPER ---
+    function showToast(message, type = "info") {
+      let container = document.getElementById("toastContainer");
+      if (!container) {
+        container = document.createElement("div");
+        container.id = "toastContainer";
+        container.style.cssText = "position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;";
+        document.body.appendChild(container);
+      }
+      const toast = document.createElement("div");
+      const colors = {
+        success: "border-color: #00ff88; background: rgba(5, 150, 105, 0.95); color: #fff;",
+        warn: "border-color: #ffb700; background: rgba(217, 119, 6, 0.95); color: #fff;",
+        error: "border-color: #ff3366; background: rgba(220, 38, 38, 0.95); color: #fff;",
+        info: "border-color: #00f0ff; background: rgba(15, 23, 42, 0.95); color: #f1f5f9;"
+      };
+      toast.style.cssText = `padding: 10px 18px; border-radius: 8px; border: 1.5px solid; font-size: 0.82rem; font-weight: 600; font-family: var(--font-mono); box-shadow: 0 4px 14px rgba(0,0,0,0.5); transition: opacity 0.3s ease; ${colors[type] || colors.info}`;
+      toast.innerText = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // --- MODE SWITCHING ---
+    function setControlMode(mode) {
+      if (isEmergencyStop) {
+        showToast("⚠️ Emergency Stop is active! Click 'Reset to Origin & Patrol' first.", "warn");
+        return;
+      }
+      currentMode = mode;
+      if (mode === "autonomous") {
+        btnAuto.className = "mode-btn active-auto";
+        btnManual.className = "mode-btn";
+        joystickLock.classList.remove("hidden");
+        joystickStatusBadge.innerText = "Disabled (Auto)";
+        hudModeChip.innerText = "AUTO";
+        showToast("🤖 Autonomous Patrol Active - Resuming perimeter navigation...", "success");
+      } else {
+        btnAuto.className = "mode-btn";
+        btnManual.className = "mode-btn active-manual";
+        joystickLock.classList.add("hidden");
+        joystickStatusBadge.innerText = "Active (Teleop)";
+        hudModeChip.innerText = "MANUAL";
+        showToast("🕹️ Manual Joystick Teleop Active. Use Joystick or [W][A][S][D].", "warn");
+      }
+
+      fetch("/api/mode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: mode })
+      }).catch(err => console.error("Error setting mode:", err));
+    }
+
+    // --- EMERGENCY STOP & RESET ---
+    function toggleEmergencyStop() {
+      if (!isEmergencyStop) {
+        // Trigger Emergency Stop
+        isEmergencyStop = true;
+        btnEStop.classList.add("active-stopped");
+        estopBtnText.innerText = "RESET TO ORIGIN & PATROL";
+        joystickLock.classList.remove("hidden");
+        joystickStatusBadge.innerText = "E-STOPPED";
+        hudModeChip.innerText = "HALTED";
+        showToast("🛑 EMERGENCY STOP TRIGGERED! Rover halted.", "error");
+
+        fetch("/api/estop", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ stop: true })
+        }).catch(err => console.error("Error triggering E-Stop:", err));
+      } else {
+        // Releasing E-Stop: Teleport to Origin and Start Autonomous Surveillance Patrol
+        triggerResetToOrigin();
+      }
+    }
+
+    // --- RESET TO ORIGIN & PATROL ROUTINE ---
+    function triggerResetToOrigin() {
+      isEmergencyStop = false;
+      btnEStop.classList.remove("active-stopped");
+      estopBtnText.innerText = "EMERGENCY STOP";
+      currentMode = "autonomous";
+      btnAuto.className = "mode-btn active-auto";
+      btnManual.className = "mode-btn";
+      joystickLock.classList.remove("hidden");
+      joystickStatusBadge.innerText = "Disabled (Auto)";
+      hudModeChip.innerText = "AUTO";
+
+      fetch("/api/reset_to_origin", { method: "POST" })
+        .then(r => r.json())
+        .then(data => {
+          showToast("🔄 Rover reset to Origin (0.0, -4.50) & Autonomous Surveillance Patrol Started!", "success");
+        })
+        .catch(err => {
+          console.error(err);
+          showToast("⚠️ Reset request failed: " + err, "error");
+        });
+    }
+
+    // --- QUICK ACTIONS ---
+    function triggerResumePatrol() {
+      fetch("/api/resume", { method: "POST" })
+        .then(() => showToast("🔓 Operator RESUME sent (35s bypass grace period armed)!", "info"))
+        .catch(err => console.error(err));
+    }
+
+    function triggerClearCostmaps() {
+      fetch("/api/clear_costmaps", { method: "POST" })
+        .then(() => showToast("🧹 Nav2 Local & Global Costmaps cleared!", "info"))
+        .catch(err => console.error(err));
+    }
+
+    // --- JOYSTICK IMPLEMENTATION ---
+    const joyCenter = 100;
+
+    function renderJoystick(knobX, knobY) {
+      joyCtx.clearRect(0, 0, joyCanvas.width, joyCanvas.height);
+
+      // Outer boundary ring
+      joyCtx.beginPath();
+      joyCtx.arc(joyCenter, joyCenter, JOY_RADIUS, 0, Math.PI * 2);
+      joyCtx.fillStyle = "rgba(18, 26, 38, 0.85)";
+      joyCtx.fill();
+      joyCtx.lineWidth = 2;
+      joyCtx.strokeStyle = "rgba(0, 240, 255, 0.4)";
+      joyCtx.stroke();
+
+      // Crosshair lines
+      joyCtx.beginPath();
+      joyCtx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+      joyCtx.lineWidth = 1;
+      joyCtx.moveTo(joyCenter - JOY_RADIUS, joyCenter);
+      joyCtx.lineTo(joyCenter + JOY_RADIUS, joyCenter);
+      joyCtx.moveTo(joyCenter, joyCenter - JOY_RADIUS);
+      joyCtx.lineTo(joyCenter, joyCenter + JOY_RADIUS);
+      joyCtx.stroke();
+
+      // Cardinal labels
+      joyCtx.font = "9px monospace";
+      joyCtx.fillStyle = "rgba(255, 255, 255, 0.4)";
+      joyCtx.textAlign = "center";
+      joyCtx.fillText("▲ FWD", joyCenter, joyCenter - JOY_RADIUS + 14);
+      joyCtx.fillText("▼ REV", joyCenter, joyCenter + JOY_RADIUS - 6);
+      joyCtx.fillText("◀ L", joyCenter - JOY_RADIUS + 14, joyCenter + 3);
+      joyCtx.fillText("R ▶", joyCenter + JOY_RADIUS - 14, joyCenter + 3);
+
+      // Vector indicator line
+      if (knobX !== joyCenter || knobY !== joyCenter) {
+        joyCtx.beginPath();
+        joyCtx.moveTo(joyCenter, joyCenter);
+        joyCtx.lineTo(knobX, knobY);
+        joyCtx.strokeStyle = "rgba(0, 255, 136, 0.6)";
+        joyCtx.lineWidth = 2;
+        joyCtx.stroke();
+      }
+
+      // Draggable thumb knob
+      const knobGrad = joyCtx.createRadialGradient(knobX - 4, knobY - 4, 3, knobX, knobY, KNOB_RADIUS);
+      knobGrad.addColorStop(0, "#00ff88");
+      knobGrad.addColorStop(1, "#059669");
+
+      joyCtx.beginPath();
+      joyCtx.arc(knobX, knobY, KNOB_RADIUS, 0, Math.PI * 2);
+      joyCtx.fillStyle = knobGrad;
+      joyCtx.fill();
+      joyCtx.lineWidth = 2;
+      joyCtx.strokeStyle = "#ffffff";
+      joyCtx.stroke();
+    }
+
+    renderJoystick(joyCenter, joyCenter);
+
+    function updateJoystickPosition(clientX, clientY) {
+      const rect = joyCanvas.getBoundingClientRect();
+      let dx = clientX - (rect.left + joyCenter);
+      let dy = clientY - (rect.top + joyCenter);
+      const dist = Math.hypot(dx, dy);
+
+      if (dist > JOY_RADIUS - KNOB_RADIUS + 6) {
+        const angle = Math.atan2(dy, dx);
+        dx = Math.cos(angle) * (JOY_RADIUS - KNOB_RADIUS + 6);
+        dy = Math.sin(angle) * (JOY_RADIUS - KNOB_RADIUS + 6);
+      }
+
+      joyX = dx / (JOY_RADIUS - KNOB_RADIUS + 6);
+      joyY = dy / (JOY_RADIUS - KNOB_RADIUS + 6);
+
+      renderJoystick(joyCenter + dx, joyCenter + dy);
+
+      // Compute linear and angular velocities
+      const linearCmd = -joyY * MAX_LINEAR_SPEED;
+      const angularCmd = -joyX * MAX_ANGULAR_SPEED;
+
+      joyReadoutLin.innerText = `LIN: ${(linearCmd >= 0 ? "+" : "") + linearCmd.toFixed(2)} m/s`;
+      joyReadoutAng.innerText = `ANG: ${(angularCmd >= 0 ? "+" : "") + angularCmd.toFixed(2)} rad/s`;
+
+      sendTeleopCmd(linearCmd, angularCmd);
+    }
+
+    function sendTeleopCmd(linear, angular) {
+      if (currentMode !== "manual" || isEmergencyStop) return;
+      fetch("/api/teleop", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ linear: linear, angular: angular })
+      }).catch(err => {});
+    }
+
+    // Pointer events on canvas
+    joyCanvas.addEventListener("pointerdown", e => {
+      if (currentMode !== "manual" || isEmergencyStop) return;
+      isDragging = true;
+      joyCanvas.setPointerCapture(e.pointerId);
+      updateJoystickPosition(e.clientX, e.clientY);
+    });
+
+    joyCanvas.addEventListener("pointermove", e => {
+      if (!isDragging) return;
+      updateJoystickPosition(e.clientX, e.clientY);
+    });
+
+    function resetJoystick() {
+      if (!isDragging) return;
+      isDragging = false;
+      joyX = 0; joyY = 0;
+      renderJoystick(joyCenter, joyCenter);
+      joyReadoutLin.innerText = "LIN: +0.00 m/s";
+      joyReadoutAng.innerText = "ANG: +0.00 rad/s";
+      sendTeleopCmd(0.0, 0.0);
+    }
+
+    joyCanvas.addEventListener("pointerup", resetJoystick);
+    joyCanvas.addEventListener("pointercancel", resetJoystick);
+
+    // Keyboard WASD Controls for Joystick
+    const keysPressed = {};
+    window.addEventListener("keydown", e => {
+      if (currentMode !== "manual" || isEmergencyStop) return;
+      const k = e.key.toLowerCase();
+      if (["w", "a", "s", "d", "arrowup", "arrowdown", "arrowleft", "arrowright"].includes(k)) {
+        keysPressed[k] = true;
+        handleKeyboardTeleop();
+      }
+    });
+
+    window.addEventListener("keyup", e => {
+      const k = e.key.toLowerCase();
+      if (keysPressed[k]) {
+        delete keysPressed[k];
+        handleKeyboardTeleop();
+      }
+    });
+
+    function handleKeyboardTeleop() {
+      if (currentMode !== "manual" || isEmergencyStop) return;
+      let lin = 0.0;
+      let ang = 0.0;
+      if (keysPressed["w"] || keysPressed["arrowup"]) lin += MAX_LINEAR_SPEED;
+      if (keysPressed["s"] || keysPressed["arrowdown"]) lin -= MAX_LINEAR_SPEED * 0.8;
+      if (keysPressed["a"] || keysPressed["arrowleft"]) ang += MAX_ANGULAR_SPEED * 0.8;
+      if (keysPressed["d"] || keysPressed["arrowright"]) ang -= MAX_ANGULAR_SPEED * 0.8;
+
+      const normY = -lin / MAX_LINEAR_SPEED;
+      const normX = -ang / MAX_ANGULAR_SPEED;
+      renderJoystick(joyCenter + normX * 45, joyCenter + normY * 45);
+
+      joyReadoutLin.innerText = `LIN: ${(lin >= 0 ? "+" : "") + lin.toFixed(2)} m/s`;
+      joyReadoutAng.innerText = `ANG: ${(ang >= 0 ? "+" : "") + ang.toFixed(2)} rad/s`;
+
+      sendTeleopCmd(lin, ang);
+    }
+
+    // --- TELEMETRY POLLING (4 Hz) ---
+    function fetchTelemetry() {
+      fetch("/api/telemetry")
+        .then(res => res.json())
+        .then(data => {
+          if (!data) return;
+
+          // Primary Rover Speed
+          const pSpeed = data.primary_rover.linear_velocity || 0.0;
+          valPrimarySpeed.innerText = pSpeed.toFixed(2);
+          barPrimarySpeed.style.width = Math.min((pSpeed / 0.3) * 100, 100) + "%";
+
+          // Primary Rover Angular Velocity
+          const pAng = data.primary_rover.angular_velocity || 0.0;
+          valPrimaryAng.innerText = (pAng >= 0 ? "+" : "") + pAng.toFixed(2);
+          barPrimaryAng.style.width = Math.min((Math.abs(pAng) / 1.5) * 100, 100) + "%";
+          const pAngDeg = (pAng * 180 / Math.PI).toFixed(1);
+          subPrimaryAng.innerText = `Rotation: ${pAngDeg}°/s ${pAng > 0.05 ? '(CCW ↺)' : (pAng < -0.05 ? '(CW ↻)' : '')}`;
+
+          // Secondary Rover Speed & Range
+          const sSpeed = data.secondary_rover.linear_velocity || 0.25;
+          valSecondarySpeed.innerText = sSpeed.toFixed(2);
+          const sDist = data.secondary_rover.distance || 0.0;
+          subSecondaryDist.innerText = `Range to Primary: ${sDist.toFixed(2)}m (Dynamic: ${data.secondary_rover.is_dynamic ? 'Yes' : 'No'})`;
+
+          // Heading & Pose
+          const yawDeg = data.primary_rover.yaw_deg || 0;
+          valHeadingDeg.innerHTML = `${yawDeg >= 0 ? '+' : ''}${yawDeg.toFixed(0)}&deg;`;
+          valCardinal.innerText = `[${data.primary_rover.cardinal || 'N'}]`;
+          subPose.innerText = `Pose: (x=${data.primary_rover.x.toFixed(2)}, y=${data.primary_rover.y.toFixed(2)})`;
+          hudPoseChip.innerText = `X: ${data.primary_rover.x.toFixed(1)} Y: ${data.primary_rover.y.toFixed(1)}`;
+
+          // Checkpoint Waypoint Pills
+          const curWp = data.active_waypoint || 1;
+          for (let i = 1; i <= 6; i++) {
+            const pill = document.getElementById("pillWP" + i);
+            if (pill) {
+              if (i === curWp) pill.className = "wp-pill active";
+              else pill.className = "wp-pill";
+            }
+          }
+        })
+        .catch(err => {});
+    }
+    setInterval(fetchTelemetry, 250);
+
+    // --- DETECTIONS LOG POLLING (1 Hz) ---
+    function fetchDetections() {
+      fetch("/api/detections")
+        .then(res => res.json())
+        .then(data => {
+          if (!Array.isArray(data)) return;
+          detectionEvents = data;
+          totalEventsBadge.innerText = `${data.length} Events Logged`;
+          renderTable();
+        })
+        .catch(err => {});
+    }
+    setInterval(fetchDetections, 1000);
+    fetchDetections();
+
+    function setTableFilter(filter) {
+      activeFilter = filter;
+      document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
+      event.target.classList.add("active");
+      renderTable();
+    }
+
+    function handleTableSearch() {
+      searchQuery = document.getElementById("tableSearch").value.toLowerCase();
+      renderTable();
+    }
+
+    function renderTable() {
+      let filtered = detectionEvents;
+
+      // Filter by type
+      if (activeFilter === "Human") {
+        filtered = filtered.filter(e => (e.target || "").toLowerCase().includes("human"));
+      } else if (activeFilter === "Rover") {
+        filtered = filtered.filter(e => (e.target || "").toLowerCase().includes("rover"));
+      } else if (activeFilter === "Obstacle") {
+        filtered = filtered.filter(e => !(e.target || "").toLowerCase().includes("human") && !(e.target || "").toLowerCase().includes("rover"));
+      }
+
+      // Filter by search string
+      if (searchQuery) {
+        filtered = filtered.filter(e => 
+          (e.date || "").toLowerCase().includes(searchQuery) ||
+          (e.time || "").toLowerCase().includes(searchQuery) ||
+          (e.target || "").toLowerCase().includes(searchQuery) ||
+          (e.status || "").toLowerCase().includes(searchQuery)
+        );
+      }
+
+      if (filtered.length === 0) {
+        detectionsTbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 20px;">No detection events match the current filter.</td></tr>`;
+        return;
+      }
+
+      let html = "";
+      // Render reverse chronological order (newest first)
+      for (let i = 0; i < Math.min(filtered.length, 100); i++) {
+        const ev = filtered[i];
+        const dist = parseFloat(ev.distance_meters) || 0.0;
+        let distClass = "dist-safe";
+        if (dist < 2.5) distClass = "dist-crit";
+        else if (dist < 4.5) distClass = "dist-warn";
+
+        const isHuman = (ev.target || "").includes("Human");
+        const isRover = (ev.target || "").includes("Rover");
+        const icon = isHuman ? "🚨" : (isRover ? "🚗" : "📦");
+
+        let actionBadge = `<span class="action-badge action-halt">HALTED & HELD</span>`;
+        if (isRover) {
+          actionBadge = `<span class="action-badge action-avoid">AVOID & YIELD</span>`;
+        }
+
+        const conf = ev.confidence ? (ev.confidence * 100).toFixed(0) + "%" : "95%";
+        const targetCoords = ev.target_coordinates ? `(${ev.target_coordinates.x.toFixed(2)}, ${ev.target_coordinates.y.toFixed(2)})` : "N/A";
+        const roverPos = ev.rover_position ? `(${ev.rover_position.x.toFixed(2)}, ${ev.rover_position.y.toFixed(2)})` : "N/A";
+
+        html += `
+          <tr>
+            <td style="font-family: var(--font-mono); color: var(--accent-cyan); font-weight: bold;">#${ev.event_id || (i + 1)}</td>
+            <td style="font-family: var(--font-mono);">${ev.date || '2026-10-31'}</td>
+            <td style="font-family: var(--font-mono); font-weight: 600; color: #fff;">${ev.time || '15:00:00'}</td>
+            <td><span class="tag-pill">${icon} <strong>${ev.target || 'Obstacle'}</strong></span></td>
+            <td><span class="dist-badge ${distClass}">${dist.toFixed(2)} m</span></td>
+            <td style="font-family: var(--font-mono); font-size: 0.75rem;">${targetCoords}</td>
+            <td style="font-family: var(--font-mono); font-size: 0.75rem;">${roverPos}</td>
+            <td><span style="font-family: var(--font-mono); color: var(--accent-green);">${conf}</span></td>
+            <td>${actionBadge}</td>
+          </tr>
+        `;
+      }
+      detectionsTbody.innerHTML = html;
+    }
+
+    // --- CSV EXPORTER ---
+    function exportTableToCSV() {
+      if (detectionEvents.length === 0) {
+        alert("No detection events to export!");
+        return;
+      }
+      let csv = "EventID,Date,Time,Target,Distance_Meters,Target_X,Target_Y,Rover_X,Rover_Y,Confidence,Status\n";
+      detectionEvents.forEach(e => {
+        const tx = e.target_coordinates ? e.target_coordinates.x : "";
+        const ty = e.target_coordinates ? e.target_coordinates.y : "";
+        const rx = e.rover_position ? e.rover_position.x : "";
+        const ry = e.rover_position ? e.rover_position.y : "";
+        csv += `${e.event_id},"${e.date}","${e.time}","${e.target}",${e.distance_meters},${tx},${ty},${rx},${ry},${e.confidence},"${e.status}"\n`;
+      });
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `perimeter_detections_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>
