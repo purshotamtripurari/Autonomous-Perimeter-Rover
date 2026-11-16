@@ -13241,5 +13241,233 @@
     },
     "distance_meters": 1.87,
     "status": "DETECTED_AND_HALTED"
+  },
+  {
+    "event_id": 698,
+    "timestamp": "2026-11-16 12:31:58.281",
+    "time": "12:31:58",
+    "date": "2026-11-16",
+    "target": "Placed Obstacle (Yard Platform)",
+    "confidence": 0.92,
+    "rover_position": {
+      "x": 0.34,
+      "y": -4.41,
+      "yaw_degrees": 13.8
+    },
+    "target_coordinates": {
+      "x": 2.0,
+      "y": -3.94
+    },
+    "distance_meters": 1.72,
+    "status": "DETECTED_AND_HALTED"
+  },
+  {
+    "event_id": 699,
+    "timestamp": "2026-11-16 12:32:00.264",
+    "time": "12:32:00",
+    "date": "2026-11-16",
+    "target": "Secondary Rover (Dynamic: 1.02 m/s)",
+    "confidence": 0.98,
+    "rover_position": {
+      "x": 0.96,
+      "y": -4.24,
+      "yaw_degrees": -16.3
+    },
+    "target_coordinates": {
+      "x": 3.43,
+      "y": -5.21
+    },
+    "distance_meters": 2.66,
+    "status": "DETECTED_AND_HALTED"
+  },
+  {
+    "event_id": 700,
+    "timestamp": "2026-11-16 12:32:36.872",
+    "time": "12:32:36",
+    "date": "2026-11-16",
+    "target": "Human Intruder",
+    "confidence": 0.88,
+    "rover_position": {
+      "x": 4.59,
+      "y": -2.9,
+      "yaw_degrees": 83.2
+    },
+    "target_coordinates": {
+      "x": 5.47,
+      "y": -1.53
+    },
+    "distance_meters": 1.63,
+    "status": "DETECTED_AND_HALTED"
+  },
+  {
+    "event_id": 701,
+    "timestamp": "2026-11-16 12:34:17.517",
+    "time": "12:34:17",
+    "date": "2026-11-16",
+    "target": "Placed Obstacle (Yard Platform)",
+    "confidence": 0.92,
+    "rover_position": {
+      "x": -0.26,
+      "y": -4.63,
+      "yaw_degrees": 13.3
+    },
+    "target_coordinates": {
+      "x": 2.69,
+      "y": -4.47
+    },
+    "distance_meters": 2.95,
+    "status": "DETECTED_AND_HALTED"
+  },
+  {
+    "event_id": 702,
+    "timestamp": "2026-11-16 12:34:27.127",
+    "time": "12:34:27",
+    "date": "2026-11-16",
+    "target": "Placed Obstacle (Yard Platform)",
+    "confidence": 0.92,
+    "rover_position": {
+      "x": 0.61,
+      "y": -5.17,
+      "yaw_degrees": 17.4
+    },
+    "target_coordinates": {
+      "x": 1.68,
+      "y": -4.33
+    },
+    "distance_meters": 1.37,
+    "status": "DETECTED_AND_HALTED"
+  },
+  {
+    "event_id": 703,
+    "timestamp": "2026-11-16 12:34:48.541",
+    "time": "12:34:48",
+    "date": "2026-11-16",
+    "target": "Secondary Rover (Dynamic: 0.69 m/s)",
+    "confidence": 0.98,
+    "rover_position": {
+      "x": 1.33,
+      "y": -4.97,
+      "yaw_degrees": 6.6
+    },
+    "target_coordinates": {
+      "x": 2.38,
+      "y": -4.42
+    },
+    "distance_meters": 1.19,
+    "status": "DETECTED_AND_HALTED"
+  },
+  {
+    "event_id": 704,
+    "timestamp": "2026-11-16 12:34:50.317",
+    "time": "12:34:50",
+    "date": "2026-11-16",
+    "target": "Secondary Rover (Dynamic: 2.49 m/s)",
+    "confidence": 0.98,
+    "rover_position": {
+      "x": 1.3,
+      "y": -4.96,
+      "yaw_degrees": -3.6
+    },
+    "target_coordinates": {
+      "x": 2.94,
+      "y": -4.44
+    },
+    "distance_meters": 1.72,
+    "status": "DETECTED_AND_HALTED"
+  },
+  {
+    "event_id": 705,
+    "timestamp": "2026-11-16 12:35:13.638",
+    "time": "12:35:13",
+    "date": "2026-11-16",
+    "target": "Human Intruder",
+    "confidence": 0.88,
+    "rover_position": {
+      "x": 4.44,
+      "y": -2.75,
+      "yaw_degrees": 81.6
+    },
+    "target_coordinates": {
+      "x": 5.43,
+      "y": -1.31
+    },
+    "distance_meters": 1.75,
+    "status": "DETECTED_AND_HALTED"
+  },
+  {
+    "event_id": 706,
+    "timestamp": "2026-11-16 12:36:56.450",
+    "time": "12:36:56",
+    "date": "2026-11-16",
+    "target": "Placed Obstacle (Yard Platform)",
+    "confidence": 0.92,
+    "rover_position": {
+      "x": -0.5,
+      "y": -4.75,
+      "yaw_degrees": 13.6
+    },
+    "target_coordinates": {
+      "x": 2.43,
+      "y": -4.83
+    },
+    "distance_meters": 2.93,
+    "status": "DETECTED_AND_HALTED"
+  },
+  {
+    "event_id": 707,
+    "timestamp": "2026-11-16 12:36:59.469",
+    "time": "12:36:59",
+    "date": "2026-11-16",
+    "target": "Secondary Rover (Dynamic: 2.22 m/s)",
+    "confidence": 0.98,
+    "rover_position": {
+      "x": -0.15,
+      "y": -4.62,
+      "yaw_degrees": -22.5
+    },
+    "target_coordinates": {
+      "x": 2.58,
+      "y": -5.17
+    },
+    "distance_meters": 2.78,
+    "status": "DETECTED_AND_HALTED"
+  },
+  {
+    "event_id": 708,
+    "timestamp": "2026-11-16 12:37:06.708",
+    "time": "12:37:06",
+    "date": "2026-11-16",
+    "target": "Placed Obstacle (Yard Platform)",
+    "confidence": 0.92,
+    "rover_position": {
+      "x": 0.53,
+      "y": -5.21,
+      "yaw_degrees": 18.6
+    },
+    "target_coordinates": {
+      "x": 1.69,
+      "y": -4.25
+    },
+    "distance_meters": 1.5,
+    "status": "DETECTED_AND_HALTED"
+  },
+  {
+    "event_id": 709,
+    "timestamp": "2026-11-16 12:37:55.810",
+    "time": "12:37:55",
+    "date": "2026-11-16",
+    "target": "Human Intruder",
+    "confidence": 0.88,
+    "rover_position": {
+      "x": 4.64,
+      "y": -3.29,
+      "yaw_degrees": 83.6
+    },
+    "target_coordinates": {
+      "x": 5.42,
+      "y": -2.03
+    },
+    "distance_meters": 1.48,
+    "status": "DETECTED_AND_HALTED"
   }
 ]

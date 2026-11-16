@@ -4311,3 +4311,15 @@
 [2026-11-13 15:05:05] PERIMETER_ALERT: Human Intruder(0.83) | Target Pos: (0.26, -2.64) | Dist: 1.69m
 [2026-11-13 15:05:06] PERIMETER_ALERT: Placed Obstacle (Yard Platform)(0.92) | Target Pos: (2.81, -3.80) | Dist: 2.23m
 [2026-11-13 15:06:17] PERIMETER_ALERT: Human Intruder(0.79) | Target Pos: (5.48, -2.98) | Dist: 1.87m
+[2026-11-16 12:31:58] PERIMETER_ALERT: Placed Obstacle (Yard Platform)(0.92) | Target Pos: (2.00, -3.94) | Dist: 1.72m
+[2026-11-16 12:32:00] PERIMETER_ALERT: Secondary Rover (Dynamic: 1.02 m/s)(0.98) | Target Pos: (3.43, -5.21) | Dist: 2.66m
+[2026-11-16 12:32:36] PERIMETER_ALERT: Human Intruder(0.88) | Target Pos: (5.47, -1.53) | Dist: 1.63m
+[2026-11-16 12:34:17] PERIMETER_ALERT: Placed Obstacle (Yard Platform)(0.92) | Target Pos: (2.69, -4.47) | Dist: 2.95m
+[2026-11-16 12:34:27] PERIMETER_ALERT: Placed Obstacle (Yard Platform)(0.92) | Target Pos: (1.68, -4.33) | Dist: 1.37m
+[2026-11-16 12:34:48] PERIMETER_ALERT: Secondary Rover (Dynamic: 0.69 m/s)(0.98) | Target Pos: (2.38, -4.42) | Dist: 1.19m
+[2026-11-16 12:34:50] PERIMETER_ALERT: Secondary Rover (Dynamic: 2.49 m/s)(0.98) | Target Pos: (2.94, -4.44) | Dist: 1.72m
+[2026-11-16 12:35:13] PERIMETER_ALERT: Human Intruder(0.88) | Target Pos: (5.43, -1.31) | Dist: 1.75m
+[2026-11-16 12:36:56] PERIMETER_ALERT: Placed Obstacle (Yard Platform)(0.92) | Target Pos: (2.43, -4.83) | Dist: 2.93m
+[2026-11-16 12:36:59] PERIMETER_ALERT: Secondary Rover (Dynamic: 2.22 m/s)(0.98) | Target Pos: (2.58, -5.17) | Dist: 2.78m
+[2026-11-16 12:37:06] PERIMETER_ALERT: Placed Obstacle (Yard Platform)(0.92) | Target Pos: (1.69, -4.25) | Dist: 1.50m
+[2026-11-16 12:37:55] PERIMETER_ALERT: Human Intruder(0.88) | Target Pos: (5.42, -2.03) | Dist: 1.48m
