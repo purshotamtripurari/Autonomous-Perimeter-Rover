@@ -287,6 +287,137 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
       flex: 1;
     }}
 
+    /* LIVE ROVER BRIDGE PANEL */
+    .bridge-panel {{
+      background: linear-gradient(90deg, #101725 0%, #162032 100%);
+      border: 1px solid #1e293b;
+      border-left: 4px solid var(--accent-cyan);
+      border-radius: 8px;
+      padding: 10px 18px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }}
+
+    .bridge-left {{
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+      min-width: 300px;
+      flex-wrap: wrap;
+    }}
+
+    .bridge-status-badge {{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }}
+
+    .status-online {{
+      background: rgba(16, 185, 129, 0.18);
+      color: var(--accent-green);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+    }}
+
+    .status-offline {{
+      background: rgba(245, 158, 11, 0.18);
+      color: var(--accent-yellow);
+      border: 1px solid rgba(245, 158, 11, 0.5);
+    }}
+
+    .status-indicator-dot {{
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }}
+
+    .bridge-input-wrap {{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }}
+
+    .bridge-label {{
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }}
+
+    .bridge-input {{
+      flex: 1;
+      min-width: 220px;
+      background: #090e16;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      color: var(--accent-cyan);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }}
+
+    .bridge-input:focus {{
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+    }}
+
+    .bridge-actions {{
+      display: flex;
+      gap: 8px;
+    }}
+
+    .btn-bridge {{
+      background: linear-gradient(135deg, #0284c7 0%, #00f0ff 100%);
+      color: #0a0e14;
+      font-weight: 700;
+      font-size: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 14px;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: all 0.2s ease;
+    }}
+
+    .btn-bridge:hover {{
+      transform: translateY(-1px);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+    }}
+
+    .btn-bridge-alt {{
+      background: #1e293b;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.72rem;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 7px 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }}
+
+    .btn-bridge-alt:hover {{
+      background: #273549;
+      color: #fff;
+    }}
+
     /* TOP DECK: 3 COLUMN GRID */
     .top-deck-grid {{
       display: grid;
@@ -796,13 +927,22 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
   </header>
 
   <main>
-    <!-- REAL-TIME LOCAL TELEOPERATION BANNER -->
-    <div style="background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(0, 240, 255, 0.35); padding: 10px 18px; border-radius: 8px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; flex-wrap: wrap; gap: 8px;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <span style="font-size: 1.2rem;">📡</span>
-        <span><strong>Live Gazebo Teleoperation:</strong> To view the direct 30 FPS camera feed and drive the rover in your local Gazebo simulator, open <a href="http://localhost:5000" target="_blank" style="color: var(--accent-cyan); text-decoration: underline; font-weight: 700;">http://localhost:5000</a>. On Streamlit Cloud, you are viewing the live geofence audit logs & mission analytics.</span>
+    <!-- ACTIVE LIVE ROVER BRIDGE CONTROLLER -->
+    <div class="bridge-panel">
+      <div class="bridge-left">
+        <span class="bridge-status-badge status-offline" id="bridgeStatusBadge">
+          <span class="status-indicator-dot"></span>
+          <span id="bridgeStatusText">CONNECTING TO LIVE ROVER...</span>
+        </span>
+        <div class="bridge-input-wrap">
+          <span class="bridge-label">📡 LIVE ROVER BRIDGE:</span>
+          <input type="text" id="roverBridgeUrlInput" class="bridge-input" placeholder="https://your-tunnel.trycloudflare.com or http://localhost:5000">
+        </div>
       </div>
-      <a href="http://localhost:5000" target="_blank" style="background: var(--accent-cyan); color: #0a0e14; padding: 6px 14px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">OPEN LOCALHOST:5000 ↗</a>
+      <div class="bridge-actions">
+        <button id="btnConnectBridge" class="btn-bridge" onclick="connectToRoverBridge()">⚡ LINK ROVER</button>
+        <button class="btn-bridge-alt" onclick="resetBridgeUrl()">🔄 DEFAULT TUNNEL</button>
+      </div>
     </div>
 
     <!-- TOP DECK: CAMERA FEED + TELEMETRY GAUGES + JOYSTICK -->
@@ -818,8 +958,8 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
           <span class="card-badge" id="cameraFpsBadge">30 FPS | MJPEG</span>
         </div>
         <div class="video-container">
-          <!-- Real Gazebo Camera Stream (loads when viewing locally or when port 5000 is open) -->
-          <img id="videoStream" src="http://localhost:5000/video_feed" alt="Rover Live Stream" style="display:none; width: 100%; height: 100%; object-fit: cover;" onload="this.style.display='block'; var vh=document.getElementById('vectorHud'); if(vh) vh.style.display='none';" onerror="this.style.display='none'; var vh=document.getElementById('vectorHud'); if(vh) vh.style.display='block';">
+          <!-- Real Gazebo Camera Stream (loads dynamically via Live Rover Bridge) -->
+          <img id="videoStream" src="" alt="Rover Live Stream" style="display:none; width: 100%; height: 100%; object-fit: cover;" onload="this.style.display='block'; var vh=document.getElementById('vectorHud'); if(vh) vh.style.display='none'; setBridgeStatus(true, '● LIVE ROVER ONLINE (GAZEBO)');" onerror="this.style.display='none'; var vh=document.getElementById('vectorHud'); if(vh) vh.style.display='block';">
           <div id="vectorHud" style="width: 100%; height: 100%;">
           <!-- Vector Tactical Camera Stream HUD matching Picture 2 -->
           <svg viewBox="0 0 640 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -1168,6 +1308,110 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
       }}, 3500);
     }}
 
+    // --- LIVE ROVER BRIDGE INTEGRATION ---
+    const DEFAULT_BRIDGE_URL = "https://rhode-scotland-camcorders-fares.trycloudflare.com";
+    let activeRoverUrl = localStorage.getItem("roverBridgeUrl") || DEFAULT_BRIDGE_URL;
+
+    const roverInput = document.getElementById("roverBridgeUrlInput");
+    const bridgeBadge = document.getElementById("bridgeStatusBadge");
+    const bridgeStatusText = document.getElementById("bridgeStatusText");
+    const videoStreamImg = document.getElementById("videoStream");
+    const vectorHud = document.getElementById("vectorHud");
+
+    if (roverInput) roverInput.value = activeRoverUrl;
+
+    function setBridgeStatus(online, msg) {{
+      if (!bridgeBadge) return;
+      if (online) {{
+        bridgeBadge.className = "bridge-status-badge status-online";
+        bridgeStatusText.innerText = msg || "● LIVE ROVER ONLINE (GAZEBO)";
+      }} else {{
+        bridgeBadge.className = "bridge-status-badge status-offline";
+        bridgeStatusText.innerText = msg || "○ OFFLINE (CHECK TUNNEL)";
+      }}
+    }}
+
+    function connectToRoverBridge(url) {{
+      if (url) {{
+        activeRoverUrl = url.trim().replace(/[/]+$/, "");
+      }} else if (roverInput && roverInput.value.trim()) {{
+        activeRoverUrl = roverInput.value.trim().replace(/[/]+$/, "");
+      }} else {{
+        activeRoverUrl = DEFAULT_BRIDGE_URL;
+      }}
+
+      localStorage.setItem("roverBridgeUrl", activeRoverUrl);
+      if (roverInput) roverInput.value = activeRoverUrl;
+
+      // Update live camera stream source
+      if (videoStreamImg) {{
+        videoStreamImg.src = activeRoverUrl + "/video_feed";
+      }}
+
+      showToast(`🔗 Connecting to Rover Bridge at ${{activeRoverUrl}}...`, "info");
+      pollRoverTelemetry(true);
+    }}
+
+    function resetBridgeUrl() {{
+      activeRoverUrl = DEFAULT_BRIDGE_URL;
+      localStorage.setItem("roverBridgeUrl", activeRoverUrl);
+      if (roverInput) roverInput.value = activeRoverUrl;
+      connectToRoverBridge(activeRoverUrl);
+    }}
+
+    // POLL TELEMETRY FROM LIVE ROVER (4 Hz)
+    async function pollRoverTelemetry(showFeedback = false) {{
+      if (!activeRoverUrl) return;
+      try {{
+        const resp = await fetch(activeRoverUrl + "/api/telemetry", {{ mode: "cors" }});
+        if (resp.ok) {{
+          const data = await resp.json();
+          setBridgeStatus(true, "● LIVE ROVER ONLINE (GAZEBO)");
+
+          // Update linear velocity
+          const lin = data.primary_rover ? data.primary_rover.linear_velocity : 0.0;
+          valPrimarySpeed.innerText = Math.abs(lin).toFixed(2);
+          barPrimarySpeed.style.width = Math.min((Math.abs(lin) / 0.26) * 100, 100) + "%";
+
+          // Update angular velocity
+          const ang = data.primary_rover ? data.primary_rover.angular_velocity : 0.0;
+          valPrimaryAng.innerText = (ang >= 0 ? "+" : "") + ang.toFixed(2);
+          barPrimaryAng.style.width = Math.min((Math.abs(ang) / 1.5) * 100, 100) + "%";
+
+          // Update secondary rover speed & distance
+          if (data.secondary_rover) {{
+            valSecSpeed.innerText = (data.secondary_rover.linear_velocity || 0.25).toFixed(2);
+            subSecSpeed.innerText = `Range: ${{ (data.secondary_rover.distance || 0.0).toFixed(2) }}m (Dynamic: ${{ data.secondary_rover.is_dynamic ? "Yes" : "No" }})`;
+          }}
+
+          // Update heading & pose
+          if (data.primary_rover) {{
+            valHeadingPose.innerText = `${{Math.round(data.primary_rover.yaw_deg || 0)}}° [${{data.primary_rover.cardinal || "E"}}]`;
+            subHeadingPose.innerText = `Pose: (x:${{(data.primary_rover.x || 0).toFixed(2)}}, y:${{(data.primary_rover.y || 0).toFixed(2)}})`;
+            hudPoseChip.innerText = `X: ${{(data.primary_rover.x || 0).toFixed(1)}} Y: ${{(data.primary_rover.y || 0).toFixed(1)}}`;
+          }}
+
+          // Update waypoint pills
+          if (data.active_waypoint) {{
+            document.querySelectorAll(".wp-pill").forEach(p => p.classList.remove("active"));
+            const pill = document.getElementById("pillWP" + data.active_waypoint);
+            if (pill) pill.classList.add("active");
+          }}
+
+          if (showFeedback) showToast("✅ Successfully connected to Live Rover!", "success");
+        }} else {{
+          setBridgeStatus(false, "○ ROVER REPLIED " + resp.status);
+        }}
+      }} catch (err) {{
+        setBridgeStatus(false, "○ OFFLINE (CHECK TUNNEL)");
+      }}
+    }}
+
+    // Auto-poll telemetry from rover every 250ms (4 Hz)
+    setInterval(() => {{
+      pollRoverTelemetry(false);
+    }}, 250);
+
     // --- MODE SWITCHING ---
     function setControlMode(mode) {{
       if (isEmergencyStop) {{
@@ -1191,12 +1435,14 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
         showToast("🕹️ Manual Joystick Teleop Active. Use Joystick or [W][A][S][D].", "warn");
       }}
 
+      if (activeRoverUrl) {{
+        fetch(activeRoverUrl + "/api/mode", {{
+          method: "POST",
+          headers: {{ "Content-Type": "application/json" }},
+          body: JSON.stringify({{ mode: mode }})
+        }}).catch(err => {{}});
+      }}
       fetch("/api/mode", {{
-        method: "POST",
-        headers: {{ "Content-Type": "application/json" }},
-        body: JSON.stringify({{ mode: mode }})
-      }}).catch(err => {{}});
-      fetch("http://localhost:5000/api/mode", {{
         method: "POST",
         headers: {{ "Content-Type": "application/json" }},
         body: JSON.stringify({{ mode: mode }})
@@ -1217,12 +1463,14 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
         updateTelemetryDisplay();
         showToast("🛑 EMERGENCY STOP TRIGGERED! Rover halted.", "error");
 
+        if (activeRoverUrl) {{
+          fetch(activeRoverUrl + "/api/estop", {{
+            method: "POST",
+            headers: {{ "Content-Type": "application/json" }},
+            body: JSON.stringify({{ stop: true }})
+          }}).catch(err => {{}});
+        }}
         fetch("/api/estop", {{
-          method: "POST",
-          headers: {{ "Content-Type": "application/json" }},
-          body: JSON.stringify({{ stop: true }})
-        }}).catch(err => {{}});
-        fetch("http://localhost:5000/api/estop", {{
           method: "POST",
           headers: {{ "Content-Type": "application/json" }},
           body: JSON.stringify({{ stop: true }})
@@ -1253,18 +1501,26 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
 
       showToast("🔄 Rover reset to Origin (0.0, -4.50) & Autonomous Surveillance Patrol Started!", "success");
 
+      if (activeRoverUrl) {{
+        fetch(activeRoverUrl + "/api/reset_to_origin", {{ method: "POST" }}).catch(err => {{}});
+      }}
       fetch("/api/reset_to_origin", {{ method: "POST" }}).catch(err => {{}});
-      fetch("http://localhost:5000/api/reset_to_origin", {{ method: "POST" }}).catch(err => {{}});
     }}
 
     // --- QUICK ACTIONS ---
     function triggerResumePatrol() {{
       showToast("🔓 Operator RESUME sent (35s bypass grace period armed)!", "info");
+      if (activeRoverUrl) {{
+        fetch(activeRoverUrl + "/api/resume", {{ method: "POST" }}).catch(err => {{}});
+      }}
       fetch("/api/resume", {{ method: "POST" }}).catch(err => {{}});
     }}
 
     function triggerClearCostmaps() {{
       showToast("🧹 Nav2 Local & Global Costmaps cleared!", "info");
+      if (activeRoverUrl) {{
+        fetch(activeRoverUrl + "/api/clear_costmaps", {{ method: "POST" }}).catch(err => {{}});
+      }}
       fetch("/api/clear_costmaps", {{ method: "POST" }}).catch(err => {{}});
     }}
 
@@ -1361,15 +1617,23 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
       sendTeleopCmd(linearCmd, angularCmd);
     }}
 
+    let lastTeleopSent = 0;
     function sendTeleopCmd(linear, angular) {{
       if (currentMode !== "manual" || isEmergencyStop) return;
+      const now = Date.now();
+      if (now - lastTeleopSent < 40 && (linear !== 0.0 || angular !== 0.0)) {{
+        return; // throttle to ~25Hz
+      }}
+      lastTeleopSent = now;
+
+      if (activeRoverUrl) {{
+        fetch(activeRoverUrl + "/api/teleop", {{
+          method: "POST",
+          headers: {{ "Content-Type": "application/json" }},
+          body: JSON.stringify({{ linear: linear, angular: angular }})
+        }}).catch(err => {{}});
+      }}
       fetch("/api/teleop", {{
-        method: "POST",
-        headers: {{ "Content-Type": "application/json" }},
-        body: JSON.stringify({{ linear: linear, angular: angular }})
-      }}).catch(err => {{}});
-      // Also bridge directly to local Gazebo controller if open locally
-      fetch("http://localhost:5000/api/teleop", {{
         method: "POST",
         headers: {{ "Content-Type": "application/json" }},
         body: JSON.stringify({{ linear: linear, angular: angular }})
@@ -1602,6 +1866,7 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
     // Initial render
     renderTable();
     updateTelemetryDisplay();
+    connectToRoverBridge();
   </script>
 </body>
 </html>"""
