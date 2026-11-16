@@ -77,10 +77,24 @@ def generate_launch_description():
         actions=[patrol_node]
     )
 
+    # 5. Mission Control & Teleoperation Web Dashboard (localhost:5000)
+    web_controller_node = Node(
+        package="perimeter_rover",
+        executable="web_controller_node",
+        name="web_controller_node",
+        output="screen"
+    )
+
+    web_delayed = TimerAction(
+        period=4.0,
+        actions=[web_controller_node]
+    )
+
     return LaunchDescription([
         tb3_model_env,
         sim_launch,
         surveillance_delayed,
         dynamic_delayed,
-        patrol_delayed
+        patrol_delayed,
+        web_delayed
     ])

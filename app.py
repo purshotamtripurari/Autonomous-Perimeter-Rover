@@ -796,6 +796,15 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
   </header>
 
   <main>
+    <!-- REAL-TIME LOCAL TELEOPERATION BANNER -->
+    <div style="background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(0, 240, 255, 0.35); padding: 10px 18px; border-radius: 8px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; flex-wrap: wrap; gap: 8px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 1.2rem;">📡</span>
+        <span><strong>Live Gazebo Teleoperation:</strong> To view the direct 30 FPS camera feed and drive the rover in your local Gazebo simulator, open <a href="http://localhost:5000" target="_blank" style="color: var(--accent-cyan); text-decoration: underline; font-weight: 700;">http://localhost:5000</a>. On Streamlit Cloud, you are viewing the live geofence audit logs & mission analytics.</span>
+      </div>
+      <a href="http://localhost:5000" target="_blank" style="background: var(--accent-cyan); color: #0a0e14; padding: 6px 14px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">OPEN LOCALHOST:5000 ↗</a>
+    </div>
+
     <!-- TOP DECK: CAMERA FEED + TELEMETRY GAUGES + JOYSTICK -->
     <div class="top-deck-grid">
       
@@ -809,6 +818,9 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
           <span class="card-badge" id="cameraFpsBadge">30 FPS | MJPEG</span>
         </div>
         <div class="video-container">
+          <!-- Real Gazebo Camera Stream (loads when viewing locally or when port 5000 is open) -->
+          <img id="videoStream" src="http://localhost:5000/video_feed" alt="Rover Live Stream" style="display:none; width: 100%; height: 100%; object-fit: cover;" onload="this.style.display='block'; var vh=document.getElementById('vectorHud'); if(vh) vh.style.display='none';" onerror="this.style.display='none'; var vh=document.getElementById('vectorHud'); if(vh) vh.style.display='block';">
+          <div id="vectorHud" style="width: 100%; height: 100%;">
           <!-- Vector Tactical Camera Stream HUD matching Picture 2 -->
           <svg viewBox="0 0 640 480" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <!-- Simulated Outdoor Yard Compound -->
@@ -858,6 +870,7 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
               Surveillance Active | Press 'R' to Resume Patrol
             </text>
           </svg>
+          </div>
 
           <div class="video-overlay-hud">
             <span class="hud-chip">🔴 LIVE</span>
@@ -1183,6 +1196,11 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
         headers: {{ "Content-Type": "application/json" }},
         body: JSON.stringify({{ mode: mode }})
       }}).catch(err => {{}});
+      fetch("http://localhost:5000/api/mode", {{
+        method: "POST",
+        headers: {{ "Content-Type": "application/json" }},
+        body: JSON.stringify({{ mode: mode }})
+      }}).catch(err => {{}});
     }}
 
     // --- EMERGENCY STOP & RESET ---
@@ -1200,6 +1218,11 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
         showToast("🛑 EMERGENCY STOP TRIGGERED! Rover halted.", "error");
 
         fetch("/api/estop", {{
+          method: "POST",
+          headers: {{ "Content-Type": "application/json" }},
+          body: JSON.stringify({{ stop: true }})
+        }}).catch(err => {{}});
+        fetch("http://localhost:5000/api/estop", {{
           method: "POST",
           headers: {{ "Content-Type": "application/json" }},
           body: JSON.stringify({{ stop: true }})
@@ -1231,6 +1254,7 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
       showToast("🔄 Rover reset to Origin (0.0, -4.50) & Autonomous Surveillance Patrol Started!", "success");
 
       fetch("/api/reset_to_origin", {{ method: "POST" }}).catch(err => {{}});
+      fetch("http://localhost:5000/api/reset_to_origin", {{ method: "POST" }}).catch(err => {{}});
     }}
 
     // --- QUICK ACTIONS ---
@@ -1340,6 +1364,12 @@ DASHBOARD_HTML = f"""<!DOCTYPE html>
     function sendTeleopCmd(linear, angular) {{
       if (currentMode !== "manual" || isEmergencyStop) return;
       fetch("/api/teleop", {{
+        method: "POST",
+        headers: {{ "Content-Type": "application/json" }},
+        body: JSON.stringify({{ linear: linear, angular: angular }})
+      }}).catch(err => {{}});
+      // Also bridge directly to local Gazebo controller if open locally
+      fetch("http://localhost:5000/api/teleop", {{
         method: "POST",
         headers: {{ "Content-Type": "application/json" }},
         body: JSON.stringify({{ linear: linear, angular: angular }})
